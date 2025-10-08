@@ -26,16 +26,8 @@ management:
     web:
       exposure:
         include: health,info,prometheus
-gc:
-  host: "sede-a.local"
-zmq:
-  pub:
-    dev:
-      port: 7002
-    ren:
-      port: 7003
 ga:
-  host: "sede-a.local"
+  host: "sede-b.local"
   rep:
-    port: 9020
+    port: 9120
   timeoutMs: 2000

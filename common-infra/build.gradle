@@ -1,16 +1,11 @@
 plugins {
   id 'java-library'
 }
-
 dependencies {
-  api project(':common-domain')  // expone contratos a los consumidores
-
-  // ZeroMQ puro Java
-  implementation 'org.zeromq:jeromq:0.5.3'
-  // JSON
+  api project(':common-domain')
+  api 'org.zeromq:jeromq:0.5.3'  // <- expone ZContext a los consumidores
   implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
-  // Logging API
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
   implementation 'org.slf4j:slf4j-api:2.0.13'
-
   testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }

@@ -4,10 +4,10 @@ spring:
 
 ga:
   local:
-    path: "/tmp/biblio/sedeA"    # almacenamiento simple E1
+    path: "/tmp/biblio/sedeB"    # almacenamiento simple E1
   server:
     rep:
-      port: 9020                 # REP para Actores→GA
+      port: 9120                 # REP para Actores→GA
 
 management:
   endpoints.web.exposure.include: health,info,prometheus

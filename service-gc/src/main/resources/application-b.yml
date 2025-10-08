@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: service-gc
+  config:
+    activate:
+      on-profile: gc
+
+sede:
+  id: A
+  nombre: "Sede A"
+
+zmq:
+  gc:
+    reqrep:
+      port: 7001   # REQ-REP préstamo
+  pub:
+    dev:
+      port: 7002   # PUB-SUB Devolucion
+    ren:
+      port: 7003   # PUB-SUB Renovacion
+
+timeouts:
+  ms:
+    prestamo: 1500
+    devolucion: 500
+    renovacion: 500
+retries:
+  max: 3
+backoff:
+  ms: 150
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
