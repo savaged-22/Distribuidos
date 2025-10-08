@@ -1,0 +1,2 @@
+rootProject.name = 'biblioteca-distribuida'
+include 'common-domain', 'common-infra', 'service-gc', 'service-actors', 'service-ga', 'ps-client'

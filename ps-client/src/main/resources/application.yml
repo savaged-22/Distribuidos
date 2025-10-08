@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: ps-client
+  config:
+    activate:
+      on-profile: ps
+
+scenario:
+  durationSeconds: 120
+  warmupSeconds: 10
+  sedeA.clients: 4
+  sedeB.clients: 4
+  mix:
+    devolucion: 0.4
+    renovacion: 0.4
+    prestamo: 0.2
+
+gc:
+  sedeA:
+    host: "sede-a.local"
+    reqrepPort: 7001
+  sedeB:
+    host: "sede-b.local"
+    reqrepPort: 7101

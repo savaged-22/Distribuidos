@@ -1,0 +1,9 @@
+plugins { id 'org.springframework.boot' }
+dependencies {
+  implementation project(':common-domain')
+  implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'io.micrometer:micrometer-registry-prometheus'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

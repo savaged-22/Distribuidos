@@ -1,0 +1,16 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  api project(':common-domain')  // expone contratos a los consumidores
+
+  // ZeroMQ puro Java
+  implementation 'org.zeromq:jeromq:0.5.3'
+  // JSON
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+  // Logging API
+  implementation 'org.slf4j:slf4j-api:2.0.13'
+
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}

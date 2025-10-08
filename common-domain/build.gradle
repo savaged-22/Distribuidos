@@ -1,0 +1,11 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  // Contratos/entidades (anotaciones y validación)
+  implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.2'
+  implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}

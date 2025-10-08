@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: service-ga
+  config:
+    activate:
+      on-profile: ga
+
+ga:
+  local:
+    path: "/var/lib/biblio/sedeA"   # almacenamiento simple (E1)
+  replication:
+    peer:
+      host: "sede-b.local"
+      port: 9020
+    batch:
+      size: 100
+    interval:
+      ms: 500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

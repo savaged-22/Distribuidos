@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: service-actors
+  config:
+    activate:
+      on-profile: actors
+
+sede:
+  id: A
+  nombre: "Sede A"
+
+actors:
+  prestamo:
+    rep:
+      port: 7011 # Servidor REP de préstamo
+
+ga:
+  local:
+    url: "file:///var/lib/biblio/sedeA"  # placeholder
+  remote:
+    host: "sede-b.local"
+    port: 9020
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
