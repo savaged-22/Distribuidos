@@ -6,28 +6,27 @@ spring:
       on-profile: actors
 
 sede:
-  id: A
-  nombre: "Sede A"
+  id: B
+  nombre: "Sede B"
 
-actors:
-  prestamo:
-    rep:
-      port: 7011 # Servidor REP de préstamo
+gc:
+  host: "sede-b.local"
+
+zmq:
+  pub:
+    dev:
+      port: 7102     # GC B publica Devolucion aquí
+    ren:
+      port: 7103     # GC B publica Renovacion aquí
 
 ga:
-  local:
-    url: "file:///var/lib/biblio/sedeA"  # placeholder
-  remote:
-    host: "sede-b.local"
-    port: 9020
+  host: "sede-b.local"
+  rep:
+    port: 9120
+  timeoutMs: 2000
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
-ga:
-  host: "sede-b.local"
-  rep:
-    port: 9120
-  timeoutMs: 2000

@@ -9,33 +9,26 @@ sede:
   id: A
   nombre: "Sede A"
 
-actors:
-  prestamo:
-    rep:
-      port: 7011 # Servidor REP de préstamo
+# Conexión al GC (para suscribirse a los tópicos)
+gc:
+  host: "sede-a.local"
 
+zmq:
+  pub:
+    dev:
+      port: 7002     # topic Devolucion publicado por GC A
+    ren:
+      port: 7003     # topic Renovacion publicado por GC A
+
+# Conexión al GA (para enviar REQ/REP desde los Actores)
 ga:
-  local:
-    url: "file:///var/lib/biblio/sedeA"  # placeholder
-  remote:
-    host: "sede-b.local"
+  host: "sede-a.local"
+  rep:
     port: 9020
+  timeoutMs: 2000
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
-gc:
-  host: "sede-a.local"
-zmq:
-  pub:
-    dev:
-      port: 7002
-    ren:
-      port: 7003
-ga:
-  host: "sede-a.local"
-  rep:
-    port: 9020
-  timeoutMs: 2000
