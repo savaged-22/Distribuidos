@@ -11,4 +11,10 @@ dependencies {
   implementation 'io.micrometer:micrometer-registry-prometheus'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+  implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+  implementation "com.zaxxer:HikariCP"
+  implementation "com.oracle.database.jdbc:ojdbc11:23.4.0.24.05"
+  implementation "org.flywaydb:flyway-core"
+  implementation "org.flywaydb:flyway-database-oracle"
 }

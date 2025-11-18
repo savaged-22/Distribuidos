@@ -1,13 +1,54 @@
+#########################################################
+# PERFIL: SEDE B  (ga-b)
+#########################################################
 spring:
-  application.name: service-ga
-  config.activate.on-profile: ga
+  config:
+    activate:
+      on-profile: ga-b
+
+  datasource:
+    url: jdbc:oracle:thin:@//localhost:1522/FREE
+    username: biblio
+    password: Biblio123
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    hikari:
+      maximum-pool-size: 12
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 600000
+      connection-timeout: 10000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
 ga:
+  sede: B
+  # Ruta distinta para la sede B
   local:
-    path: "/tmp/biblio/sedeB"    # almacenamiento simple E1
+    path: "/tmp/biblio/sedeB"
   server:
     rep:
-      port: 9120                 # REP para Actores→GA
+      port: 9030                   # puerto REP para Actores→GA en sede B
+
+  replica:
+    enabled: true
+    endpoint: ""                   # endpoint GA-A (cuando lo configures)
 
 management:
-  endpoints.web.exposure.include: health,info,prometheus
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
