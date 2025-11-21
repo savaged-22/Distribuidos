@@ -17,7 +17,7 @@ public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
     // Buscar por estado (ACTIVO, DEV, etc.)
     List<Prestamo> findByEstado(String estado);
 
-    // 👉 Clave para renovación y devolución:
+    // Clave para renovación y devolución:
     // Último préstamo ACTIVO de ese usuario y libro
     Optional<Prestamo> findTopByUsuarioUsuarioIdAndLibroLibroIdAndEstadoOrderByFechaInicioDesc(
             String usuarioId,
