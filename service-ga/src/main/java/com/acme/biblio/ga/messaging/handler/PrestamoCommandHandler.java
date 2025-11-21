@@ -1,6 +1,11 @@
 package com.acme.biblio.ga.messaging.handler;
 
+import com.acme.biblio.contracts.MessageHeaders;
 import com.acme.biblio.contracts.PrestamoCmd;
+import com.acme.biblio.contracts.PrestamoDenied;
+import com.acme.biblio.contracts.PrestamoGranted;
+import com.acme.biblio.contracts.Response;
+import com.acme.biblio.ga.domain.Prestamo;
 import com.acme.biblio.ga.service.PrestamoService;
 import com.acme.biblio.ga.util.SedeMapper;
 import org.springframework.stereotype.Component;
@@ -15,15 +20,36 @@ public class PrestamoCommandHandler {
     }
 
     /**
-     * Maneja el comando PrestamoCmd y llama a la capa de dominio.
+     * Maneja el comando PrestamoCmd:
+     *  - Normaliza la sede.
+     *  - Llama a la capa de dominio (PrestamoService).
+     *  - Devuelve un Response de contratos:
+     *      - PrestamoGranted si todo sale bien.
+     *      - PrestamoDenied si hay algún error de negocio.
      */
-    public void handle(PrestamoCmd cmd) {
-        String usuarioId = cmd.headers().usuarioId();
-        String libroId = cmd.headers().libroId();
-        String sede = SedeMapper.normalize(cmd.headers().sedeOrigen());
+    public Response handle(PrestamoCmd cmd) {
+        MessageHeaders h = cmd.headers();
 
-        service.procesarPrestamo(usuarioId, libroId, sede);
+        String usuarioId = h.usuarioId();
+        String libroId   = h.libroId();
+        String sede      = SedeMapper.normalize(h.sedeOrigen());
 
-        // 🔜 En el futuro produciremos respuesta PrestamoGranted y evento a GA_OUTBOX
+        try {
+            // Lógica de dominio: registra el préstamo y actualiza stock
+            Prestamo prestamo = service.procesarPrestamo(usuarioId, libroId, sede);
+
+            // Éxito → respondemos con PrestamoGranted
+            return new PrestamoGranted(
+                    h,
+                    prestamo.getFechaEntrega()
+            );
+
+        } catch (Exception ex) {
+            // Cualquier excepción de negocio → PrestamoDenied
+            return new PrestamoDenied(
+                    h,
+                    ex.getMessage()
+            );
+        }
     }
 }
