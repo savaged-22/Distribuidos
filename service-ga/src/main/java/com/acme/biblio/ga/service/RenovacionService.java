@@ -38,12 +38,13 @@ public Prestamo procesarRenovacion(String usuarioId, String libroId, String sede
     }
 
     Prestamo prestamo = prestamoRepo
-            .findTopByUsuarioUsuarioIdAndLibroLibroIdAndEstadoOrderByFechaInicioDesc(
-                    usuarioId, libroId, "ACTIVO"
-            )
-            .orElseThrow(() ->
-                    new IllegalArgumentException("No existe un préstamo activo para ese usuario y libro")
-            );
+        .findTopByUsuario_IdAndLibro_IdAndEstadoOrderByFechaInicioDesc(
+                usuarioId, libroId, "ACTIVO"
+        )
+        .orElseThrow(() ->
+                new IllegalArgumentException("No existe un préstamo activo para ese usuario y libro")
+        );
+
 
     if (prestamo.getRenovaciones() >= 2) {
         throw new IllegalStateException("No se permiten más de 2 renovaciones para este préstamo");
