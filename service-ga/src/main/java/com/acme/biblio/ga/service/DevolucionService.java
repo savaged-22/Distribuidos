@@ -33,52 +33,34 @@ public class DevolucionService {
      * - Registra idempotencia para evitar reprocesos.
      */
     @Transactional
-    public Prestamo procesarDevolucion(String usuarioId, String libroId, String sedeOrigen) {
-
-        // 1️⃣ Idempotencia básica por operación + usuario + libro
-        String key = "DEV-" + usuarioId + "-" + libroId;
-        if (idempotencyRepo.existsById(key)) {
-            throw new IllegalStateException("Comando de devolución ya fue procesado anteriormente");
-        }
-
-        // 2️⃣ Buscar préstamo ACTIVO para ese usuario y libro
-        Prestamo prestamo = prestamoRepo
-                .findTopByUsuarioUsuarioIdAndLibroLibroIdAndEstadoOrderByFechaInicioDesc(
-                        usuarioId, libroId, "ACTIVO"
-                )
-                .orElseThrow(() ->
-                        new IllegalArgumentException("No existe un préstamo activo para ese usuario y libro")
-                );
-
-        // 3️⃣ Marcar el préstamo como devuelto
-        prestamo.setEstado("DEV");
-        prestamoRepo.save(prestamo);
-
-        // 4️⃣ Actualizar stock en LIBRO según sede de origen
-        Libro libro = prestamo.getLibro();
-        if (sedeOrigen == null) {
-            throw new IllegalArgumentException("La sede de origen no puede ser nula en una devolución");
-        }
-
-        if ("A".equalsIgnoreCase(sedeOrigen)) {
-            libro.setStockSedeA(libro.getStockSedeA() + 1);
-        } else if ("B".equalsIgnoreCase(sedeOrigen)) {
-            libro.setStockSedeB(libro.getStockSedeB() + 1);
-        } else {
-            throw new IllegalArgumentException("Sede de origen inválida: " + sedeOrigen);
-        }
-
-        libroRepo.save(libro);
-
-        // 5️⃣ Registrar idempotencia de la operación
-        idempotencyRepo.save(new GaIdempotency(
-                key,
-                LocalDate.now(),
-                "Devolución aplicada"
-        ));
-
-        // 6️⃣ Futuro: aquí podríamos registrar un evento DevolucionRecibidaEvt en GA_OUTBOX
-
-        return prestamo;
+public Prestamo procesarDevolucion(String usuarioId, String libroId, String sedeOrigen) {
+    String key = "DEV-" + usuarioId + "-" + libroId;
+    if (idempotencyRepo.existsById(key)) {
+        throw new IllegalStateException("Comando de devolución ya fue procesado anteriormente");
     }
+
+    Prestamo prestamo = prestamoRepo
+            .findTopByUsuarioUsuarioIdAndLibroLibroIdAndEstadoOrderByFechaInicioDesc(
+                    usuarioId, libroId, "ACTIVO"
+            )
+            .orElseThrow(() ->
+                    new IllegalArgumentException("No existe un préstamo activo para ese usuario y libro")
+            );
+
+    prestamo.setEstado("DEV");
+    prestamoRepo.save(prestamo);
+
+    Libro libro = prestamo.getLibro();
+    ...
+    libroRepo.save(libro);
+
+    idempotencyRepo.save(new GaIdempotency(
+            key,
+            LocalDate.now(),
+            "Devolución aplicada"
+    ));
+
+    return prestamo;
+}
+
 }
