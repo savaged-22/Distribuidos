@@ -1,26 +1,107 @@
-package com.acme.biblio.ga.messaging.handler;
+package com.acme.biblio.ga.service;
 
 import com.acme.biblio.contracts.PrestamoCmd;
+import com.acme.biblio.contracts.PrestamoDenied;
+import com.acme.biblio.contracts.PrestamoGranted;
 import com.acme.biblio.contracts.Response;
-import com.acme.biblio.ga.service.PrestamoService;
-import org.springframework.stereotype.Component;
+import com.acme.biblio.ga.domain.*;
+import com.acme.biblio.ga.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
-public class PrestamoCommandHandler {
+import java.time.LocalDate;
 
-    private final PrestamoService prestamoService;
+@Service
+public class PrestamoService {
 
-    public PrestamoCommandHandler(PrestamoService prestamoService) {
-        this.prestamoService = prestamoService;
+    private final LibroRepository libroRepo;
+    private final UsuarioRepository usuarioRepo;
+    private final PrestamoRepository prestamoRepo;
+    private final GaIdempotencyRepository idempotencyRepo;
+    private final GaOutboxRepository outboxRepo;
+
+    public PrestamoService(
+            LibroRepository libroRepo,
+            UsuarioRepository usuarioRepo,
+            PrestamoRepository prestamoRepo,
+            GaIdempotencyRepository idempotencyRepo,
+            GaOutboxRepository outboxRepo
+    ) {
+        this.libroRepo = libroRepo;
+        this.usuarioRepo = usuarioRepo;
+        this.prestamoRepo = prestamoRepo;
+        this.idempotencyRepo = idempotencyRepo;
+        this.outboxRepo = outboxRepo;
     }
 
-    /**
-     * Maneja el comando PrestamoCmd delegando la lógica al PrestamoService.
-     * El servicio devuelve un Response:
-     *  - PrestamoGranted si se otorga el préstamo
-     *  - PrestamoDenied si hay algún problema (stock, usuario/libro inexistente, etc.)
-     */
-    public Response handle(PrestamoCmd cmd) {
-        return prestamoService.procesarPrestamo(cmd);
+
+    @Transactional
+    public Response procesarPrestamo(PrestamoCmd cmd) {
+
+        var h = cmd.headers();
+
+        // 1️⃣ Idempotencia usando la key del mensaje
+        if (idempotencyRepo.existsById(h.idempotencyKey())) {
+            return new PrestamoDenied(h, "Duplicate command");
+        }
+
+        // 2️⃣ Validar usuario
+        Usuario usuario = usuarioRepo.findById(h.usuarioId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no existe: " + h.usuarioId()));
+
+        // 3️⃣ Validar libro
+        Libro libro = libroRepo.findById(h.libroId())
+                .orElseThrow(() -> new IllegalArgumentException("Libro no existe: " + h.libroId()));
+
+        // 4️⃣ Stock según sede origen
+        int stock = h.sedeOrigen().equalsIgnoreCase("A")
+                ? libro.getStockSedeA()
+                : libro.getStockSedeB();
+
+        if (stock <= 0) {
+            return new PrestamoDenied(h, "No hay stock disponible en sede " + h.sedeOrigen());
+        }
+
+        // 5️⃣ Crear préstamo
+        Prestamo p = new Prestamo();
+        p.setUsuario(usuario);
+        p.setLibro(libro);
+        p.setFechaInicio(LocalDate.now());
+        p.setFechaEntrega(LocalDate.now().plusDays(7));
+        p.setRenovaciones(0);
+        p.setEstado("ACTIVO");
+
+        prestamoRepo.save(p);
+
+        // 6️⃣ Actualizar stock
+        if (h.sedeOrigen().equalsIgnoreCase("A")) {
+            libro.setStockSedeA(stock - 1);
+        } else {
+            libro.setStockSedeB(stock - 1);
+        }
+        libroRepo.save(libro);
+
+        // 7️⃣ Guardar registro de idempotencia
+        idempotencyRepo.save(new GaIdempotency(
+                h.idempotencyKey(),
+                LocalDate.now(),
+                "PRESTAMO"
+        ));
+
+        // 8️⃣ Crear evento de salida
+        PrestamoGranted evt = new PrestamoGranted(h, p.getFechaEntrega());
+
+        // Convertir a JSON (requiere mapper que haremos)
+        String payload = evt.toString(); // <-- luego reemplazar por mapper real
+
+        outboxRepo.save(new GaOutbox(
+                null,
+                evt.getClass().getSimpleName(),
+                payload,
+                LocalDate.now(),
+                null
+        ));
+
+        return evt;
     }
 }
