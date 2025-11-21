@@ -8,18 +8,17 @@ import java.util.Optional;
 
 public interface PrestamoRepository extends JpaRepository<Prestamo, Long> {
 
-    // Buscar todos los préstamos de un usuario (asumiendo campo: Prestamo.usuario.usuarioId)
-    List<Prestamo> findByUsuarioUsuarioId(String usuarioId);
+    // Listar por usuario (usa la asociación Prestamo.usuario.id)
+    List<Prestamo> findByUsuario_Id(String usuarioId);
 
-    // Buscar todos los préstamos de un libro (asumiendo campo: Prestamo.libro.libroId)
-    List<Prestamo> findByLibroLibroId(String libroId);
+    // Listar por libro (usa Prestamo.libro.id)
+    List<Prestamo> findByLibro_Id(String libroId);
 
-    // Buscar por estado (ACTIVO, DEV, etc.)
+    // Listar por estado
     List<Prestamo> findByEstado(String estado);
 
-    // Clave para renovación y devolución:
-    // Último préstamo ACTIVO de ese usuario y libro
-    Optional<Prestamo> findTopByUsuarioUsuarioIdAndLibroLibroIdAndEstadoOrderByFechaInicioDesc(
+    // Último préstamo ACTIVO (u otro estado) de un usuario para un libro
+    Optional<Prestamo> findTopByUsuario_IdAndLibro_IdAndEstadoOrderByFechaEntregaDesc(
             String usuarioId,
             String libroId,
             String estado
