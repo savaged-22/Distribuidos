@@ -7,7 +7,6 @@ import com.acme.biblio.contracts.PrestamoGranted;
 import com.acme.biblio.contracts.Response;
 import com.acme.biblio.ga.domain.Prestamo;
 import com.acme.biblio.ga.service.PrestamoService;
-import com.acme.biblio.ga.util.SedeMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,32 +19,25 @@ public class PrestamoCommandHandler {
     }
 
     /**
-     * Maneja el comando PrestamoCmd:
-     *  - Normaliza la sede.
-     *  - Llama a la capa de dominio (PrestamoService).
-     *  - Devuelve un Response de contratos:
-     *      - PrestamoGranted si todo sale bien.
-     *      - PrestamoDenied si hay algún error de negocio.
+     * Maneja el comando PrestamoCmd, delega al dominio
+     * y construye la Response (Granted / Denied).
      */
     public Response handle(PrestamoCmd cmd) {
+
         MessageHeaders h = cmd.headers();
 
-        String usuarioId = h.usuarioId();
-        String libroId   = h.libroId();
-        String sede      = SedeMapper.normalize(h.sedeOrigen());
-
         try {
-            // Lógica de dominio: registra el préstamo y actualiza stock
-            Prestamo prestamo = service.procesarPrestamo(usuarioId, libroId, sede);
+            // El servicio ya usa todo el cmd (usuario, libro, sede, idempotencia, etc.)
+            Prestamo prestamo = service.procesarPrestamo(cmd);
 
-            // Éxito → respondemos con PrestamoGranted
+            // Éxito → PrestamoGranted con la fechaEntrega del dominio
             return new PrestamoGranted(
                     h,
                     prestamo.getFechaEntrega()
             );
 
         } catch (Exception ex) {
-            // Cualquier excepción de negocio → PrestamoDenied
+            // Error de negocio → PrestamoDenied con el motivo
             return new PrestamoDenied(
                     h,
                     ex.getMessage()
