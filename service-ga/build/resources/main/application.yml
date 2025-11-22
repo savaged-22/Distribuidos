@@ -54,18 +54,14 @@ ga:
 
   server:
     rep:
-      port: 9020                   # REP para Actores→GA en sede A
+      port: 9020
       server: 0.0.0.0
 
-   # Config de réplica: SOLO la sede A replica hacia la sede B
+  # Solo sede A replica hacia sede B
   replica:
     enabled: true
-    # URL base HTTP del GA de la sede B (ajusta host/puerto según tu despliegue)
-    # Ejemplo si GA-B corre en 8083 en la misma máquina:
-    # base-url: "http://localhost:8083"
-    base-url: "http://10.43.102.101:8082"          # <- RELLENAR con la URL de GA-B
+    base-url: ""         # <- PON AQUÍ la URL HTTP del GA-B
     poll-interval-ms: 2000
-
 
 management:
   endpoints:
@@ -74,8 +70,8 @@ management:
         include: health,info,prometheus
 
 server:
-  port: 8081 
-  address: 0.0.0.0  
+  port: 8081
+  address: 0.0.0.0
 
 ---
 #########################################################
@@ -87,7 +83,7 @@ spring:
       on-profile: ga-b
 
   datasource:
-    url: jdbc:oracle:thin:@//0.0.0.0:1521/FREE
+    url: jdbc:oracle:thin:@//localhost:1522/FREE
     username: biblio
     password: Biblio123
     driver-class-name: oracle.jdbc.OracleDriver
@@ -111,8 +107,6 @@ spring:
 
   flyway:
     enabled: false
-    # locations: classpath:db/migration
-    # baseline-on-migrate: true
 
 ga:
   sede: B
@@ -122,7 +116,7 @@ ga:
 
   server:
     rep:
-      port: 9030                   # puerto REP para Actores→GA en sede B
+      port: 9030
       server: 0.0.0.0
 
   # Sede B NO replica
