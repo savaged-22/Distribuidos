@@ -65,6 +65,9 @@ management:
       exposure:
         include: health,info,prometheus
 
+server:
+  port: 8081   
+
 ---
 #########################################################
 # PERFIL: SEDE B  (ga-b)
@@ -120,3 +123,6 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+
+server:
+  port: 8082
