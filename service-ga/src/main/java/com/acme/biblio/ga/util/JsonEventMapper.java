@@ -10,7 +10,7 @@ public final class JsonEventMapper {
 
     private static final Logger log = LoggerFactory.getLogger(JsonEventMapper.class);
 
-    // 🔧 Mapper global y seguro para serializar/deserializar
+    // Mapper global y seguro para serializar/deserializar
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private JsonEventMapper() {}

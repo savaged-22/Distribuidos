@@ -1,7 +1,8 @@
 ###############################################
 # service-ga / application.yml
-#   - Perfil ga   : Sede A  (Oracle en localhost:1521/FREE)
-#   - Perfil ga-b : Sede B  (Oracle en localhost:1522/FREE)
+#  Perfiles:
+#    - ga   : Sede A  (Oracle localhost:1521/FREE)
+#    - ga-b : Sede B  (Oracle localhost:1522/FREE)
 ###############################################
 
 spring:
@@ -47,23 +48,30 @@ spring:
 
 ga:
   sede: A
-  # Lo que ya tenías:
+
   local:
-    path: "/tmp/biblio/sedeA"      # almacenamiento simple sede A
+    path: "/tmp/biblio/sedeA"
+
   server:
     rep:
-      port: 9020                   # REP para Actores→GA en sede A
+      port: 9020
+      server: 0.0.0.0
 
-  # Config extra para réplica (cuando la montes)
+  # Solo sede A replica hacia sede B
   replica:
     enabled: true
-    endpoint: ""                   # endpoint GA-B (cuando lo tengas)
+    base-url: ""         # <- PON AQUÍ la URL HTTP del GA-B
+    poll-interval-ms: 2000
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
+
+server:
+  port: 8081
+  address: 0.0.0.0
 
 ---
 #########################################################
@@ -98,25 +106,31 @@ spring:
     show-sql: false
 
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+    enabled: false
 
 ga:
   sede: B
-  # Ruta distinta para la sede B
+
   local:
     path: "/tmp/biblio/sedeB"
+
   server:
     rep:
-      port: 9030                   # puerto REP para Actores→GA en sede B
+      port: 9030
+      server: 0.0.0.0
 
+  # Sede B NO replica
   replica:
-    enabled: true
-    endpoint: ""                   # endpoint GA-A (cuando lo configures)
+    enabled: false
+    base-url: ""
+    poll-interval-ms: 2000
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
+
+server:
+  port: 8082
+  address: 0.0.0.0

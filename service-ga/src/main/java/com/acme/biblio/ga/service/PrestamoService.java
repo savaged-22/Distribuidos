@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import com.acme.biblio.ga.util.JsonEventMapper;
+
 
 @Service
 public class PrestamoService {
@@ -91,17 +93,18 @@ public class PrestamoService {
         // 8️⃣ Crear evento de salida
         PrestamoGranted evt = new PrestamoGranted(h, p.getFechaEntrega());
 
-        // Convertir a JSON (requiere mapper que haremos)
-        String payload = evt.toString(); // <-- luego reemplazar por mapper real
+       // Convertir a JSON usando el mapper centralizado
+String payload = JsonEventMapper.toJson(evt);
 
-        outboxRepo.save(new GaOutbox(
-                null,
-                evt.getClass().getSimpleName(),
-                payload,
-                LocalDate.now(),
-                null
-        ));
+outboxRepo.save(new GaOutbox(
+        null,
+        evt.getClass().getSimpleName(), // o evt.topic().value() si tu evento tiene topic
+        payload,
+        LocalDate.now(),
+        null
+));
 
-        return evt;
+return evt;
+
     }
 }
