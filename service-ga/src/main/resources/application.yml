@@ -70,8 +70,12 @@ management:
         include: health,info,prometheus
 
 server:
+<<<<<<< HEAD
   port: 8081
   address: 0.0.0.0
+=======
+  port: 8081   
+>>>>>>> 4be2c66fc97f42cf17672a192f4e36746727cfb4
 
 ---
 #########################################################
@@ -132,5 +136,9 @@ management:
         include: health,info,prometheus
 
 server:
+<<<<<<< HEAD
   port: 8082
   address: 0.0.0.0
+=======
+  port: 8082
+>>>>>>> 4be2c66fc97f42cf17672a192f4e36746727cfb4
