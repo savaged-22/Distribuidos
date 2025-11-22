@@ -60,8 +60,7 @@ ga:
   # Solo sede A replica hacia sede B
   replica:
     enabled: true
-    base-url: "http://10.43.102.101:8082"
-        # <- PON AQUÍ la URL HTTP del GA-B
+    base-url: ""         # <- PON AQUÍ la URL HTTP del GA-B
     poll-interval-ms: 2000
 
 management:
