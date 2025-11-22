@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import com.acme.biblio.ga.util.JsonEventMapper;
 
-
 @Service
 public class PrestamoService {
 
@@ -35,7 +34,6 @@ public class PrestamoService {
         this.idempotencyRepo = idempotencyRepo;
         this.outboxRepo = outboxRepo;
     }
-
 
     @Transactional
     public Response procesarPrestamo(PrestamoCmd cmd) {
@@ -90,21 +88,20 @@ public class PrestamoService {
                 "PRESTAMO"
         ));
 
-        // 8️⃣ Crear evento de salida
+        // 8️⃣ Crear respuesta para el GC
         PrestamoGranted evt = new PrestamoGranted(h, p.getFechaEntrega());
 
-       // Convertir a JSON usando el mapper centralizado
-String payload = JsonEventMapper.toJson(evt);
+        // 9️⃣ Registrar en GA_OUTBOX el comando original para replicarlo en sede B
+        String payload = JsonEventMapper.toJson(cmd);
 
-outboxRepo.save(new GaOutbox(
-        null,
-        evt.getClass().getSimpleName(), // o evt.topic().value() si tu evento tiene topic
-        payload,
-        LocalDate.now(),
-        null
-));
+        outboxRepo.save(new GaOutbox(
+                null,
+                cmd.getClass().getSimpleName(),   // "PrestamoCmd"
+                payload,
+                LocalDate.now(),
+                null
+        ));
 
-return evt;
-
+        return evt;
     }
 }

@@ -57,15 +57,11 @@ ga:
       port: 9020
       server: 0.0.0.0
 
-   # Config de réplica: SOLO la sede A replica hacia la sede B
+  # Solo sede A replica hacia sede B
   replica:
     enabled: true
-    # URL base HTTP del GA de la sede B (ajusta host/puerto según tu despliegue)
-    # Ejemplo si GA-B corre en 8083 en la misma máquina:
-    # base-url: "http://localhost:8083"
-    base-url: "http://10.43.102.101:8082"          # <- RELLENAR con la URL de GA-B
+    base-url: ""         # <- PON AQUÍ la URL HTTP del GA-B
     poll-interval-ms: 2000
-
 
 management:
   endpoints:
